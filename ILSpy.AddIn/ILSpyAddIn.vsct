@@ -47,6 +47,14 @@
       <Group guid="guidILSpyAddInCmdSet" id="OpenILSpyProjGroup" priority="0x0200">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
       </Group>
+
+      <Group guid="guidILSpyAddInCmdSet" id="OpenILSpyCodeItemGroup" priority="0x0200">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
+      </Group>
+
+      <Group guid="guidILSpyAddInCmdSet" id="OpenILSpyRefGroup" priority="0x0200">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_REFERENCE"/>
+      </Group>
     </Groups>
     
     <!--Buttons section. -->
@@ -64,6 +72,8 @@
       <Button guid="guidILSpyAddInCmdSet" id="cmdidOpenReferenceInILSpy" priority="0x0600" type="Button">
         <Parent guid="guidILSpyAddInCmdSet" id="OpenILSpyRefGroup" />
         <Icon guid="guidImages" id="bmpLogo" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>Open in ILSpy</ButtonText>
         </Strings>
@@ -72,8 +82,20 @@
       <Button guid="guidILSpyAddInCmdSet" id="cmdidOpenProjectOutputInILSpy" priority="0x0600" type="Button">
         <Parent guid="guidILSpyAddInCmdSet" id="OpenILSpyProjGroup" />
         <Icon guid="guidImages" id="bmpLogo" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>Open output in ILSpy</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidILSpyAddInCmdSet" id="cmdidOpenCodeItemInILSpy" priority="0x0600" type="Button">
+        <Parent guid="guidILSpyAddInCmdSet" id="OpenILSpyCodeItemGroup" />
+        <Icon guid="guidImages" id="bmpLogo" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>Open code in ILSpy</ButtonText>
         </Strings>
       </Button>
 
@@ -98,12 +120,6 @@
     </Bitmaps>
   </Commands>
 
-  <CommandPlacements>
-    <CommandPlacement guid="guidILSpyAddInCmdSet" id="cmdidOpenReferenceInILSpy" priority="0x0600">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_REFERENCE"/>
-    </CommandPlacement>
-  </CommandPlacements>
-
   <Symbols>
     <!-- This is the package guid. -->
     <GuidSymbol name="guidILSpyAddInPkg" value="{a9120dbe-164a-4891-842f-fb7829273838}" />
@@ -114,9 +130,11 @@
       <IDSymbol name="OpenILSpyGroup" value="0x1010" />
       <IDSymbol name="OpenILSpyRefGroup" value="0x1020" />
       <IDSymbol name="OpenILSpyProjGroup" value="0x1030" />
+      <IDSymbol name="OpenILSpyCodeItemGroup" value="0x1040" />
       <IDSymbol name="cmdidOpenILSpy" value="0x0100" />
       <IDSymbol name="cmdidOpenReferenceInILSpy" value="0x0200" />
       <IDSymbol name="cmdidOpenProjectOutputInILSpy" value="0x0300" />
+      <IDSymbol name="cmdidOpenCodeItemInILSpy" value="0x0400" />
     </GuidSymbol>
      
     <GuidSymbol name="guidImages" value="{2f654db9-4641-4638-9937-27c6202b2a6a}" >

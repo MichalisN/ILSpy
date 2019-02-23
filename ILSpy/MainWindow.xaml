@@ -39,12 +39,15 @@
 			Command="Search"
 			Executed="SearchCommandExecuted" />
 	</Window.CommandBindings>
+	<Window.InputBindings>
+		<KeyBinding Key="R" Modifiers="Control" Command="{x:Static local:ILSpyCommands.Analyze}" />
+	</Window.InputBindings>
 	<Window.TaskbarItemInfo>
 		<TaskbarItemInfo />
 	</Window.TaskbarItemInfo>
 	<DockPanel>
 		<!-- Main menu -->
-		<Menu DockPanel.Dock="Top" Name="mainMenu" Height="23">
+		<Menu DockPanel.Dock="Top" Name="mainMenu" Height="23" KeyboardNavigation.TabNavigation="None">
 			<MenuItem Header="_File" /> <!-- contents of file menu are added using MEF -->
 			<MenuItem Header="_View">
 				<MenuItem Header="Show _internal types and members" IsCheckable="True" IsChecked="{Binding FilterSettings.ShowInternalApi}">
@@ -52,12 +55,17 @@
 						<Image Width="16" Height="16" Source="Images/PrivateInternal.png" />
 					</MenuItem.Icon>
 				</MenuItem>
+				<MenuItem Header="Show _all types and members" IsCheckable="True" IsChecked="{Binding FilterSettings.ShowAllApi}">
+					<MenuItem.Icon>
+						<Image Width="16" Height="16" Source="Images/ShowAll.png" />
+					</MenuItem.Icon>
+				</MenuItem>
 			</MenuItem>
 		</Menu>
 		<!-- ToolBar -->
 		<ToolBar
 			Name="toolBar"
-			DockPanel.Dock="Top" ToolBarTray.IsLocked="True">
+			DockPanel.Dock="Top" ToolBarTray.IsLocked="True" KeyboardNavigation.TabNavigation="None">
 			<ToolBar.Resources>
 				<!-- Make images transparent if menu command is disabled -->
 				<Style TargetType="{x:Type Image}">
@@ -77,10 +85,17 @@
 			<CheckBox IsChecked="{Binding FilterSettings.ShowInternalApi}" ToolTip="Show internal types and members">
 				<Image Width="16" Height="16" Source="Images/PrivateInternal.png" />
 			</CheckBox>
+			<CheckBox IsChecked="{Binding FilterSettings.ShowAllApi}" ToolTip="Show all types and members">
+				<Image Width="16" Height="16" Source="Images/ShowAll.png" />
+			</CheckBox>
 			<Separator />
-			<ComboBox Name="languageComboBox" DisplayMemberPath="Name" Width="100"
+			<ComboBox Name="languageComboBox" DisplayMemberPath="Name" Width="100" MaxDropDownHeight="Auto"
 			          ItemsSource="{x:Static local:Languages.AllLanguages}"
 			          SelectedItem="{Binding FilterSettings.Language}"/>
+			<ComboBox Name="languageVersionComboBox" DisplayMemberPath="DisplayName" Width="120" MaxDropDownHeight="Auto"
+			          Visibility="{Binding SelectedItem.HasLanguageVersions, ElementName=languageComboBox, Converter={StaticResource BooleanToVisibilityConverter}}"
+			          ItemsSource="{Binding SelectedItem.LanguageVersions, ElementName=languageComboBox, UpdateSourceTrigger=PropertyChanged}"
+			          SelectedItem="{Binding FilterSettings.LanguageVersion, UpdateSourceTrigger=PropertyChanged}"/>
 		</ToolBar>
 		<!-- Status bar -->
 		<StatusBar x:Name="statusBar" DockPanel.Dock="Bottom" Height="26" Visibility="Collapsed">
@@ -113,6 +128,7 @@
 			<!-- Left pane: Tree View of assemblies and classes -->
 			<tv:SharpTreeView
 				Name="treeView"
+				AutomationProperties.Name="Assemblies and Classes"
 				SelectionChanged="TreeView_SelectionChanged"
 				ShowRoot="False"
 				AllowDropOrder="True"
@@ -141,17 +157,18 @@
 					<RowDefinition Height="0" />
 					<RowDefinition Height="0" Name="bottomPaneRow" />
 				</Grid.RowDefinitions>
-				<Border BorderBrush="Black" BorderThickness="1" Name="updateAvailablePanel" Visibility="Collapsed">
-					<DockPanel>
-						<Button DockPanel.Dock="Right" Click="updateAvailablePanelCloseButtonClick" MinWidth="0">X</Button>
+				<Border BorderBrush="Black" BorderThickness="1" Name="updatePanel" Visibility="Collapsed">
+					<DockPanel KeyboardNavigation.TabNavigation="Contained">
+						<Button DockPanel.Dock="Right" Click="updatePanelCloseButtonClick" MinWidth="0">X</Button>
 						<StackPanel Orientation="Horizontal">
-							<TextBlock Margin="4,0" VerticalAlignment="Center">A new ILSpy version is available.</TextBlock>
-							<Button Click="downloadUpdateButtonClick">Download</Button>
+							<TextBlock Name="updatePanelMessage" Margin="4,0" VerticalAlignment="Center">A new ILSpy version is available.</TextBlock>
+							<Button Name="downloadOrCheckUpdateButton" Click="downloadOrCheckUpdateButtonClick">Download</Button>
 						</StackPanel>
 					</DockPanel>
 				</Border>
 				
 				<controls:DockedPane x:Name="topPane" Grid.Row="1" Title="Top" Visibility="Collapsed"
+									 AutomationProperties.Name="Close top pane"
 					CloseButtonClicked="TopPane_CloseButtonClicked" Margin="0,0,0,3"
 					BorderThickness="1,1,0,1" />
 				
@@ -181,6 +198,7 @@
 					Visibility="{Binding Visibility, ElementName=bottomPane}" />
 				
 				<controls:DockedPane x:Name="bottomPane" Grid.Row="5" Title="Bottom" Visibility="Collapsed"
+									 AutomationProperties.Name="Close"
 					CloseButtonClicked="BottomPane_CloseButtonClicked" Margin="0,3,0,0" BorderThickness="1,1,0,1"/>
 			</Grid>
 		</Grid>

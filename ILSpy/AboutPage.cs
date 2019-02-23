@@ -49,7 +49,7 @@ namespace ICSharpCode.ILSpy
 			Display(decompilerTextView);
 		}
 		
-		static readonly Uri UpdateUrl = new Uri("http://www.ilspy.net/updates.xml");
+		static readonly Uri UpdateUrl = new Uri("https://ilspy.net/updates.xml");
 		const string band = "stable";
 		
 		static AvailableVersionInfo latestAvailableVersion;
@@ -81,7 +81,7 @@ namespace ICSharpCode.ILSpy
 					};
 				});
 			output.WriteLine();
-			foreach (var plugin in App.CompositionContainer.GetExportedValues<IAboutPageAddition>())
+			foreach (var plugin in App.ExportProvider.GetExportedValues<IAboutPageAddition>())
 				plugin.Write(output);
 			output.WriteLine();
 			using (Stream s = typeof(AboutPage).Assembly.GetManifestResourceStream(typeof(AboutPage), "README.txt")) {
@@ -167,7 +167,7 @@ namespace ICSharpCode.ILSpy
 					button.Content = "Download";
 					button.Cursor = Cursors.Arrow;
 					button.Click += delegate {
-						Process.Start(availableVersion.DownloadUrl);
+						MainWindow.OpenLink(availableVersion.DownloadUrl);
 					};
 					stackPanel.Children.Add(button);
 				}
@@ -236,7 +236,7 @@ namespace ICSharpCode.ILSpy
 					if (automaticUpdateCheckEnabled != value) {
 						automaticUpdateCheckEnabled = value;
 						Save();
-						OnPropertyChanged("AutomaticUpdateCheckEnabled");
+						OnPropertyChanged(nameof(AutomaticUpdateCheckEnabled));
 					}
 				}
 			}
@@ -249,7 +249,7 @@ namespace ICSharpCode.ILSpy
 					if (lastSuccessfulUpdateCheck != value) {
 						lastSuccessfulUpdateCheck = value;
 						Save();
-						OnPropertyChanged("LastSuccessfulUpdateCheck");
+						OnPropertyChanged(nameof(LastSuccessfulUpdateCheck));
 					}
 				}
 			}
@@ -289,20 +289,7 @@ namespace ICSharpCode.ILSpy
 				    || s.LastSuccessfulUpdateCheck < DateTime.UtcNow.AddDays(-7)
 				    || s.LastSuccessfulUpdateCheck > DateTime.UtcNow)
 				{
-					GetLatestVersionAsync().ContinueWith(
-						delegate (Task<AvailableVersionInfo> task) {
-							try {
-								s.LastSuccessfulUpdateCheck = DateTime.UtcNow;
-								AvailableVersionInfo v = task.Result;
-								if (v.Version > currentVersion)
-									tcs.SetResult(v.DownloadUrl);
-								else
-									tcs.SetResult(null);
-							} catch (AggregateException) {
-								// ignore errors getting the version info
-								tcs.SetResult(null);
-							}
-						});
+					CheckForUpdateInternal(tcs, s);
 				} else {
 					tcs.SetResult(null);
 				}
@@ -310,6 +297,32 @@ namespace ICSharpCode.ILSpy
 				tcs.SetResult(null);
 			}
 			return tcs.Task;
+		}
+
+		public static Task<string> CheckForUpdatesAsync(ILSpySettings spySettings)
+		{
+			var tcs = new TaskCompletionSource<string>();
+			UpdateSettings s = new UpdateSettings(spySettings);
+			CheckForUpdateInternal(tcs, s);
+			return tcs.Task;
+		}
+
+		static void CheckForUpdateInternal(TaskCompletionSource<string> tcs, UpdateSettings s)
+		{
+			GetLatestVersionAsync().ContinueWith(
+				delegate (Task<AvailableVersionInfo> task) {
+					try {
+						s.LastSuccessfulUpdateCheck = DateTime.UtcNow;
+						AvailableVersionInfo v = task.Result;
+						if (v.Version > currentVersion)
+							tcs.SetResult(v.DownloadUrl);
+						else
+							tcs.SetResult(null);
+					} catch (AggregateException) {
+						// ignore errors getting the version info
+						tcs.SetResult(null);
+					}
+				});
 		}
 	}
 	

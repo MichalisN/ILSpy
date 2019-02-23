@@ -16,8 +16,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Media;
 
 namespace ICSharpCode.ILSpy.Options
@@ -36,12 +36,10 @@ namespace ICSharpCode.ILSpy.Options
 		
 		protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
 		{
-			if (PropertyChanged != null) {
-				PropertyChanged(this, e);
-			}
+			PropertyChanged?.Invoke(this, e);
 		}
 		
-		protected void OnPropertyChanged(string propertyName)
+		protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
 		{
 			OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
 		}
@@ -54,7 +52,7 @@ namespace ICSharpCode.ILSpy.Options
 			set {
 				if (selectedFont != value) {
 					selectedFont = value;
-					OnPropertyChanged("SelectedFont");
+					OnPropertyChanged();
 				}
 			}
 		}
@@ -66,7 +64,7 @@ namespace ICSharpCode.ILSpy.Options
 			set {
 				if (selectedFontSize != value) {
 					selectedFontSize = value;
-					OnPropertyChanged("SelectedFontSize");
+					OnPropertyChanged();
 				}
 			}
 		}
@@ -78,20 +76,81 @@ namespace ICSharpCode.ILSpy.Options
 			set {
 				if (showLineNumbers != value) {
 					showLineNumbers = value;
-					OnPropertyChanged("ShowLineNumbers");
+					OnPropertyChanged();
 				}
 			}
 		}
 
 		bool showMetadataTokens;
 
-		public bool ShowMetadataTokens
-		{
+		public bool ShowMetadataTokens {
 			get { return showMetadataTokens; }
 			set {
 				if (showMetadataTokens != value) {
 					showMetadataTokens = value;
-					OnPropertyChanged("ShowMetadataTokens");
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		bool showMetadataTokensInBase10;
+
+		public bool ShowMetadataTokensInBase10 {
+			get { return showMetadataTokensInBase10; }
+			set {
+				if (showMetadataTokensInBase10 != value) {
+					showMetadataTokensInBase10 = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		bool enableWordWrap;
+
+		public bool EnableWordWrap
+		{
+			get { return enableWordWrap; }
+			set
+			{
+				if (enableWordWrap != value) {
+					enableWordWrap = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		bool sortResults = true;
+
+		public bool SortResults {
+			get { return sortResults; }
+			set {
+				if (sortResults != value) {
+					sortResults = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		bool foldBraces = false;
+
+		public bool FoldBraces {
+			get { return foldBraces; }
+			set {
+				if (foldBraces != value) {
+					foldBraces = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		bool expandMemberDefinitions = false;
+
+		public bool ExpandMemberDefinitions {
+			get { return expandMemberDefinitions; }
+			set {
+				if (expandMemberDefinitions != value) {
+					expandMemberDefinitions = value;
+					OnPropertyChanged();
 				}
 			}
 		}
@@ -102,6 +161,11 @@ namespace ICSharpCode.ILSpy.Options
 			this.SelectedFontSize = s.selectedFontSize;
 			this.ShowLineNumbers = s.showLineNumbers;
 			this.ShowMetadataTokens = s.showMetadataTokens;
+			this.ShowMetadataTokensInBase10 = s.showMetadataTokensInBase10;
+			this.EnableWordWrap = s.enableWordWrap;
+			this.SortResults = s.sortResults;
+			this.FoldBraces = s.foldBraces;
+			this.ExpandMemberDefinitions = s.expandMemberDefinitions;
 		}
 	}
 }
